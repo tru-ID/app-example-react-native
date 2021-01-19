@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Alert,
   Button,
+  Image
 } from 'react-native';
 import TruSdkReactNative from 'tru-sdk-react-native';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
@@ -29,8 +30,13 @@ export default function App() {
       cancelable: false,
     });
 
-  const showSuccess = () =>
-    Alert.alert('All good', 'Check successful', [{ text: 'OK' }], {
+  const showMatchSuccess = () =>
+    Alert.alert('Verification Successful', 'The phone number verification succeeded', [{ text: 'OK' }], {
+      cancelable: false,
+    });
+
+  const showMatchFailure = () =>
+    Alert.alert('Verification Failed', 'The phone number verification failed', [{ text: 'OK' }], {
       cancelable: false,
     });
   
@@ -66,7 +72,12 @@ export default function App() {
       console.log('[CHECK RESULT]:', checkStatusRes);
 
       setIsLoading(false);
-      showSuccess();
+      if(checkStatusRes.data.match) {
+        showMatchSuccess();
+      }
+      else {
+        showMatchFailure();
+      }
     } catch (error) {
       showRequestError('Error retrieving check URL', error)
       return
@@ -75,7 +86,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.companyName}>TRU.id</Text>
+      <Image source={require('./images/tru-id-logo.png')} style={{width:400, height:400}} />
       <TextInput
         keyboardType="phone-pad"
         placeholder="Phone number"
