@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {Keyboard, TouchableWithoutFeedback} from 'react-native'
 
 // @ts-ignore
 import {BASE_URL} from "@env"
@@ -51,6 +52,7 @@ export default function App() {
 
   const triggerPhoneCheck = async () => {
     setIsLoading(true);
+    Keyboard.dismiss()
 
     let postCheckNumberRes: AxiosResponse;
     try {
@@ -85,26 +87,29 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('./images/tru-id-logo.png')} style={{width:400, height:400}} />
-      <TextInput
-        keyboardType="phone-pad"
-        placeholder="Phone number"
-        placeholderTextColor="#d3d3d3"
-        style={styles.input}
-        value={phoneNumber}
-        onChangeText={(phone) => setPhoneNumber(phone)}
-      />
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" />
-        </View>
-      ) : (
-        <View style={styles.btnContainer}>
-          <Button title="Login" onPress={triggerPhoneCheck} />
-        </View>
-      )}
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        <Image source={require('./images/tru-id-logo.png')} style={{width:300, height:300}} />
+        <TextInput
+          keyboardType="phone-pad"
+          placeholder="Phone number"
+          placeholderTextColor="#d3d3d3"
+          style={styles.input}
+          value={phoneNumber}
+          onChangeText={(phone) => setPhoneNumber(phone)}
+          focusable={!isLoading}
+        />
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" />
+          </View>
+        ) : (
+          <View style={styles.btnContainer}>
+            <Button title="Login" onPress={triggerPhoneCheck} />
+          </View>
+        )}
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
