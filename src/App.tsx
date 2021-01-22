@@ -105,7 +105,7 @@ export default function App() {
           </View>
         ) : (
           <View style={styles.btnContainer}>
-            <Button title="Login" onPress={triggerPhoneCheck} />
+            <Button title="Verify my phone number" color={styles.btnContainer.color} onPress={triggerPhoneCheck} />
           </View>
         )}
       </View>
@@ -137,9 +137,12 @@ const styles = StyleSheet.create({
   loadingContainer: {
     marginTop: 40,
     justifyContent: 'center',
+    color: '#00B4FF',
   },
   btnContainer: {
     marginTop: 30,
     justifyContent: 'center',
+    backgroundColor: '#00B4FF',
+    color: '#fff'
   },
 });
