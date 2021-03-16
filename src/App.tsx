@@ -1,8 +1,12 @@
 import * as React from 'react';
-import {Keyboard, TouchableWithoutFeedback} from 'react-native'
+import {
+  Keyboard,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from 'react-native';
 
 // @ts-ignore
-import {BASE_URL} from "@env"
+import { BASE_URL } from '@env';
 
 import {
   StyleSheet,
@@ -11,8 +15,7 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
-  Button,
-  Image
+  Image,
 } from 'react-native';
 import TruSdkReactNative from 'tru-sdk-react-native';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
@@ -21,6 +24,12 @@ const client: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
 });
+
+const AppButton = ({ onPress, title }) => (
+  <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
+    <Text style={styles.appButtonText}>{title}</Text>
+  </TouchableOpacity>
+);
 
 export default function App() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -43,8 +52,8 @@ export default function App() {
   
   const showRequestError = (errorPrefix: string, error: any) => {
     let msg = JSON.stringify(error)
-    if(error.response) {
-      msg = JSON.stringify(error.response)
+    if (error.response) {
+      msg = JSON.stringify(error.response);
     }
     setIsLoading(false);
     showError(`${errorPrefix}: ${msg}`);
@@ -52,44 +61,45 @@ export default function App() {
 
   const triggerPhoneCheck = async () => {
     setIsLoading(true);
-    Keyboard.dismiss()
+    Keyboard.dismiss();
 
     let postCheckNumberRes: AxiosResponse;
     try {
-      postCheckNumberRes = await client.post('/check', { phone_number: phoneNumber });
+      postCheckNumberRes = await client.post('/phone-check', { phone_number: phoneNumber });
       console.log('[POST CHECK]:', postCheckNumberRes.data);
-    }
-    catch(error) {
+    } catch (error) {
       setIsLoading(false);
       showRequestError('Error creating check resource', error);
-      return
+      return;
     }
 
     try {
       await TruSdkReactNative.openCheckUrl(postCheckNumberRes.data.check_url);
       const checkStatusRes = await client({
         method: 'get',
-        url: `/check_status?check_id=${postCheckNumberRes.data.check_id}`,
+        url: `/phone-check?check_id=${postCheckNumberRes.data.check_id}`,
       });
       console.log('[CHECK RESULT]:', checkStatusRes);
 
       setIsLoading(false);
-      if(checkStatusRes.data.match) {
+      if (checkStatusRes.data.match) {
         showMatchSuccess();
-      }
-      else {
+      } else {
         showMatchFailure();
       }
     } catch (error) {
       showRequestError('Error retrieving check URL', error)
-      return
+      return;
     }
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
-        <Image source={require('./images/tru-id-logo.png')} style={{width:300, height:300}} />
+        <Image
+          source={require('./images/tru-id-logo.png')}
+          style={{ width: 300, height: 300 }}
+        />
         <TextInput
           keyboardType="phone-pad"
           placeholder="Phone number"
@@ -104,8 +114,11 @@ export default function App() {
             <ActivityIndicator size="large" />
           </View>
         ) : (
-          <View style={styles.btnContainer}>
-            <Button title="Verify my phone number" color={styles.btnContainer.color} onPress={triggerPhoneCheck} />
+          <View>
+            <AppButton
+              title="Verify my phone number"
+              onPress={triggerPhoneCheck}
+            />
           </View>
         )}
       </View>
@@ -139,10 +152,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     color: '#00B4FF',
   },
-  btnContainer: {
-    marginTop: 30,
-    justifyContent: 'center',
+  appButtonContainer: {
+    elevation: 8,
+    marginTop: 10,
     backgroundColor: '#00B4FF',
-    color: '#fff'
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  appButtonText: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
+    alignSelf: 'center',
   },
 });
