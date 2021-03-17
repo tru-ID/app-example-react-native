@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  GestureResponderEvent,
   Keyboard,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -25,7 +26,26 @@ const client: AxiosInstance = axios.create({
   timeout: 30000,
 });
 
-const AppButton = ({ onPress, title }) => (
+const getIp = async function () {
+  try {
+    const ipAddress = await TruSdkReactNative.getJsonPropertyValue(
+      `${BASE_URL}/my-ip`,
+      'ip_address'
+    );
+    return ipAddress;
+  } catch (ex) {
+    console.error(ex);
+    return 'Unknown';
+  }
+};
+
+const AppButton = ({
+  onPress,
+  title,
+}: {
+  onPress: (event: GestureResponderEvent) => void;
+  title: string;
+}) => (
   <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
     <Text style={styles.appButtonText}>{title}</Text>
   </TouchableOpacity>
@@ -34,6 +54,7 @@ const AppButton = ({ onPress, title }) => (
 export default function App() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [phoneNumber, setPhoneNumber] = React.useState<string>('');
+  const [progress, setProgress] = React.useState<string>('');
 
   const showError = (error: string) =>
     Alert.alert('Something went wrong', `Error: ${error};`, [{ text: 'OK' }], {
@@ -41,54 +62,89 @@ export default function App() {
     });
 
   const showMatchSuccess = () =>
-    Alert.alert('Verification Successful', 'The phone number verification succeeded', [{ text: 'OK' }], {
-      cancelable: false,
-    });
+    Alert.alert(
+      'Verification Successful',
+      'The phone number verification succeeded',
+      [{ text: 'OK' }],
+      {
+        cancelable: false,
+      }
+    );
 
   const showMatchFailure = () =>
-    Alert.alert('Verification Failed', 'The phone number verification failed', [{ text: 'OK' }], {
-      cancelable: false,
-    });
-  
+    Alert.alert(
+      'Verification Failed',
+      'The phone number verification failed',
+      [{ text: 'OK' }],
+      {
+        cancelable: false,
+      }
+    );
+
   const showRequestError = (errorPrefix: string, error: any) => {
-    let msg = JSON.stringify(error)
+    let msg = JSON.stringify(error);
     if (error.response) {
       msg = JSON.stringify(error.response);
     }
     setIsLoading(false);
     showError(`${errorPrefix}: ${msg}`);
-  }
+  };
 
   const triggerPhoneCheck = async () => {
     setIsLoading(true);
     Keyboard.dismiss();
 
+    setProgress('Getting Device IP');
+    const ipAddress = await getIp();
+    setProgress(`Device IP: ${ipAddress}`);
+
     let postCheckNumberRes: AxiosResponse;
     try {
-      postCheckNumberRes = await client.post('/phone-check', { phone_number: phoneNumber });
+      setProgress(`Creating PhoneCheck for ${phoneNumber}`);
+      postCheckNumberRes = await client.post('/phone-check', {
+        phone_number: phoneNumber,
+      });
       console.log('[POST CHECK]:', postCheckNumberRes.data);
+      setProgress(`PhoneCheck created`);
     } catch (error) {
+      setProgress(`An error occured creating PhoneCheck`);
       setIsLoading(false);
       showRequestError('Error creating check resource', error);
       return;
     }
 
     try {
+      setProgress(`Retrieving PhoneCheck URL`);
       await TruSdkReactNative.openCheckUrl(postCheckNumberRes.data.check_url);
+      setProgress(`Retrieved PhoneCheck URL`);
+    } catch (error) {
+      setProgress(`Error: ${error.message}`);
+      console.log(JSON.stringify(error, null, 2));
+      showRequestError('Error retrieving check URL', error.message);
+      return;
+    }
+
+    try {
+      setProgress(`Getting PhoneCheck result`);
       const checkStatusRes = await client({
         method: 'get',
         url: `/phone-check?check_id=${postCheckNumberRes.data.check_id}`,
       });
       console.log('[CHECK RESULT]:', checkStatusRes);
+      setProgress(`Got PhoneCheck result`);
 
       setIsLoading(false);
       if (checkStatusRes.data.match) {
+        setProgress(`✅ successful PhoneCheck match`);
         showMatchSuccess();
       } else {
+        setProgress(`❌ failed PhoneCheck match`);
         showMatchFailure();
       }
     } catch (error) {
-      showRequestError('Error retrieving check URL', error)
+      setProgress(`Error: ${error.message}`);
+      console.log(JSON.stringify(error, null, 2));
+      showRequestError('Error retrieving check result', error.message);
       return;
     }
   };
@@ -98,6 +154,7 @@ export default function App() {
       <View style={styles.container}>
         <Image
           source={require('./images/tru-id-logo.png')}
+          // eslint-disable-next-line react-native/no-inline-styles
           style={{ width: 300, height: 300 }}
         />
         <TextInput
@@ -106,12 +163,16 @@ export default function App() {
           placeholderTextColor="#d3d3d3"
           style={styles.input}
           value={phoneNumber}
-          onChangeText={(phone) => setPhoneNumber(phone)}
+          onChangeText={(phone) => setPhoneNumber(phone.replace(/\s+/g, ''))}
           focusable={!isLoading}
         />
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" />
+            <ActivityIndicator
+              color={styles.loadingContainer.color}
+              size="large"
+            />
+            <Text>{progress}</Text>
           </View>
         ) : (
           <View>

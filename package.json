@@ -14,7 +14,7 @@
     "react": "16.11.0",
     "react-native": "0.63.3",
     "react-native-dotenv": "^2.5.0",
-    "tru-sdk-react-native": "^0.1.6"
+    "tru-sdk-react-native": "^0.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
