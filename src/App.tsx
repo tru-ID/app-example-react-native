@@ -4,7 +4,9 @@ import {
   Keyboard,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Linking,
 } from 'react-native';
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 // @ts-ignore
 import { BASE_URL } from '@env';
@@ -42,17 +44,21 @@ const getIp = async function () {
 const AppButton = ({
   onPress,
   title,
+  shouldBeEnabled,
 }: {
   onPress: (event: GestureResponderEvent) => void;
   title: string;
+  shouldBeEnabled: boolean;
 }) => (
-  <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
+  <TouchableOpacity onPress={onPress} style={styles.appButtonContainer} disabled={!shouldBeEnabled}>
     <Text style={styles.appButtonText}>{title}</Text>
   </TouchableOpacity>
 );
 
 export default function App() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isTCAcceptedState, setIsTCAcceptedState] = React.useState<boolean>(false);
+  const [isPhoneNumberValidState, setIsPhoneNumberValidState] = React.useState<boolean>(false);
   const [phoneNumber, setPhoneNumber] = React.useState<string>('');
   const [progress, setProgress] = React.useState<string>('');
 
@@ -80,6 +86,15 @@ export default function App() {
         cancelable: false,
       }
     );
+
+    const validatePhoneNumber = (phoneNumber: string) => {
+      let reg = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im  
+      if (phoneNumber.length > 0 && reg.test(phoneNumber)) {
+        setIsPhoneNumberValidState(true)
+      } else {
+        setIsPhoneNumberValidState(false)
+      }
+    };
 
   const showRequestError = (errorPrefix: string, error: any) => {
     let msg = JSON.stringify(error);
@@ -163,9 +178,32 @@ export default function App() {
           placeholderTextColor="#d3d3d3"
           style={styles.input}
           value={phoneNumber}
-          onChangeText={(phone) => setPhoneNumber(phone.replace(/\s+/g, ''))}
+          onChangeText={(phone) => {
+            setPhoneNumber(phone.replace(/\s+/g, ''))
+            validatePhoneNumber(phone)
+          } }
           focusable={!isLoading}
         />
+          <View style={{ flexDirection:"row" }}>
+            <BouncyCheckbox
+              style={{ marginTop: 16 }}
+              fillColor="#3478F7"
+              iconStyle={{ borderColor: "#3478F7" }}
+              textStyle = {{textDecorationLine: 'none', textDecorationStyle: 'solid'}}        
+              onPress={(isChecked: boolean) => {
+                setIsTCAcceptedState(isChecked)
+                }} 
+            />           
+            <Text style={{ marginTop: 20 }}>I agree with tru.ID 
+                <Text style={{color: 'blue'}}
+                      onPress={() => Linking.openURL('https://tru.id/terms')}> terms </Text>
+                &amp;
+                <Text style={{color: 'blue'}}
+                      onPress={() => Linking.openURL('https://tru.id/privacy')}> privacy </Text>
+                      policy
+            </Text>
+          </View>
+      
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator
@@ -177,10 +215,11 @@ export default function App() {
         ) : (
           <View>
             <AppButton
-              title="Verify my phone number"
+              title="Verify my phone number"              
               onPress={triggerPhoneCheck}
+              shouldBeEnabled={isTCAcceptedState && isPhoneNumberValidState}
             />
-          </View>
+          </View>          
         )}
       </View>
     </TouchableWithoutFeedback>
@@ -203,7 +242,7 @@ const styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     borderWidth: 1,
     marginTop: 40,
-    width: '60%',
+    width: '70%',
     borderRadius: 2,
     fontWeight: 'bold',
     fontSize: 18,
@@ -215,7 +254,7 @@ const styles = StyleSheet.create({
   },
   appButtonContainer: {
     elevation: 8,
-    marginTop: 10,
+    marginTop: 20,
     backgroundColor: '#00B4FF',
     borderRadius: 10,
     paddingVertical: 10,
