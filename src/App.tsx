@@ -20,7 +20,7 @@ import {
   Alert,
   Image,
 } from 'react-native';
-import TruSdkReactNative from 'tru-sdk-react-native';
+import TruSdkReactNative from '@tru_id/tru-sdk-react-native';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 const client: AxiosInstance = axios.create({
@@ -28,14 +28,14 @@ const client: AxiosInstance = axios.create({
   timeout: 30000,
 });
 
-const getIp = async function () {
+const isReachable = async function () {
+  console.log('[isReachable called]');
   try {
-    const ipAddress = await TruSdkReactNative.getJsonPropertyValue(
-      `${BASE_URL}/my-ip`,
-      'ip_address'
-    );
-    return ipAddress;
+    const details = await TruSdkReactNative.isReachable();
+    console.log('[isReachable complete]');
+    return details;
   } catch (ex) {
+    console.log('[isReachable error]');
     console.error(ex);
     return 'Unknown';
   }
@@ -109,9 +109,11 @@ export default function App() {
     setIsLoading(true);
     Keyboard.dismiss();
 
-    setProgress('Getting Device IP');
-    const ipAddress = await getIp();
-    setProgress(`Device IP: ${ipAddress}`);
+    setProgress('Checking if on a Mobile IP');
+    const details = await isReachable();
+    console.log('Is Reachable result =>' + details)
+    setProgress(`Is Reachable: ${details}`);
+
 
     let postCheckNumberRes: AxiosResponse;
     try {

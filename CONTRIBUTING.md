@@ -4,6 +4,18 @@ We want this community to be friendly and respectful to each other. Please follo
 
 ## Development workflow
 
+Install dependencies:
+```sh
+yarn install
+```
+Create configuration:
+
+```sh
+cp .env.example .env
+```
+
+Update the `BASE_URL` value in the `.env` file to point to your running example server.
+
 To start the packager:
 
 ```sh
