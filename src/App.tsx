@@ -132,7 +132,7 @@ export default function App() {
 
     try {
       setProgress(`Retrieving PhoneCheck URL`);
-      await TruSdkReactNative.openCheckUrl(postCheckNumberRes.data.check_url);
+      await TruSdkReactNative.checkUrlWithResponseBody(postCheckNumberRes.data.check_url);
       setProgress(`Retrieved PhoneCheck URL`);
     } catch (error) {
       setProgress(`Error: ${error.message}`);

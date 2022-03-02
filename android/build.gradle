@@ -10,6 +10,10 @@ buildscript {
     repositories {
         google()
         jcenter()
+      mavenCentral()
+      maven {
+        url "https://gitlab.com/api/v4/projects/22035475/packages/maven"
+      }
     }
     dependencies {
         classpath('com.android.tools.build:gradle:4.1.0')

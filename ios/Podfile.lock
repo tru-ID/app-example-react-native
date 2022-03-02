@@ -305,10 +305,10 @@ PODS:
     - React-Core (= 0.63.3)
     - React-cxxreact (= 0.63.3)
     - React-jsi (= 0.63.3)
-  - tru-sdk-ios (0.2.4)
-  - tru-sdk-react-native (0.3.2):
+  - tru-sdk-ios (0.3.0)
+  - tru-sdk-react-native (0.4.1):
     - React-Core
-    - tru-sdk-ios (~> 0.2.4)
+    - tru-sdk-ios (~> 0.3.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -472,11 +472,11 @@ SPEC CHECKSUMS:
   React-RCTText: 65a6de06a7389098ce24340d1d3556015c38f746
   React-RCTVibration: 8e9fb25724a0805107fc1acc9075e26f814df454
   ReactCommon: 4167844018c9ed375cc01a843e9ee564399e53c3
-  tru-sdk-ios: e6ed377ab975e707548219bfd96439b09cbc9708
-  tru-sdk-react-native: d88cf09287bcdfade905a77e8200f1867826035b
+  tru-sdk-ios: d073dee7baab200aa4d282cf623eade8f275e3eb
+  tru-sdk-react-native: 34b1042bc7a98ade0da6bbc85b6e6ee6711ec23a
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 99e1dd43c6da3dceecb3e8efb50fe048b138f0df
+PODFILE CHECKSUM: 16b620bff997b1c4910c7fbc7d651d28d6989ede
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.2
