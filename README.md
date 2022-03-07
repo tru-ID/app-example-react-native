@@ -15,7 +15,12 @@
 - Install dependencies: `yarn install`
 - Create configuration `cp .env.example .env` and update the `BASE_URL` value in the `.env` file to point to your running example server
 - To run on iOS run `yarn ios` or to run on Android run `yarn android`
-
+- Before running on Android make sure that the following is added to your application's `build.gradle` both within the buildscript/repositories and allprojects/repositories: 
+```
+maven {
+        url "https://gitlab.com/api/v4/projects/22035475/packages/maven"
+      }
+```
 
 ## Contributing
 

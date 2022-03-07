@@ -1,7 +1,9 @@
 # EditorConfig helps developers define and maintain consistent
 # coding styles between different editors and IDEs
 # editorconfig.org
-
+# Windows files
+2	[*.bat]
+3	end_of_line = crlf
 root = true
 
 [*]
